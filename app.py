@@ -3,17 +3,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Load the dataset
-details = pd.read_csv("Stats/games_details.csv")
+# details = pd.read_csv("Stats/games_details.csv")
 
-# Calculate performance metrics for a specific position
+url = "https://drive.google.com/file/d/1B4jdJDW-5Z45RsoSMCh1ji-qCW6FO1_z/view?usp=drive_link"
+details = pd.read_csv(url)
+
 position_mapping = {
     'G': 'Guard',
     'C': 'Center',
     'F': 'Forward'
 }
 
-# Reverse the mapping for easy access in the sidebar (full name to abbreviation)
 reverse_position_mapping = {v: k for k, v in position_mapping.items()}
 
 
@@ -24,7 +24,6 @@ def calculate_metrics(data, position):
 
 def main():
     st.title("Position-Based Performance Comparison")
-    st.write("Analyze and compare basketball player performance metrics by position.")
 
     # Display basic data info
     # st.write("### Dataset Overview")
@@ -42,12 +41,9 @@ def main():
     #       elif element == "C":
     #           element = "Center"
 
-    # Map positions for the selectbox with full names
     positions = list(position_mapping.values())
     selected_position_full = st.sidebar.selectbox(
         "Select Position", options=positions)
-
-    # Get the corresponding abbreviation for the selected position
     selected_position = reverse_position_mapping[selected_position_full]
 
     teams = details['TEAM_ABBREVIATION'].dropna().unique()
@@ -58,7 +54,6 @@ def main():
     # selected_game = st.sidebar.multiselect(
     #     "Select Game(s)", options=games, default=games)
 
-    # Filter data based on sidebar inputs
     filtered_data = details[
         (details['START_POSITION'] == selected_position) &
         (details['TEAM_ABBREVIATION'].isin(selected_team))  # &
@@ -68,22 +63,18 @@ def main():
     # st.write(f"### Players in Position: {selected_position}")
     # st.dataframe(filtered_data)
 
-    # Show summary statistics for the selected position
-    st.write("### Performance Metrics")
+    st.write("Performance Metrics")
     metrics = calculate_metrics(filtered_data, selected_position)
     st.write(metrics)
 
-    # Plotting performance data
-    st.write("### Performance Visualization")
+    st.write("Performance Visualization")
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Plot selected stats: Points, Assists, Rebounds, etc.
     sns.boxplot(data=filtered_data[['PTS', 'AST', 'REB', 'STL', 'BLK']], ax=ax)
     ax.set_title(f"Performance Distribution for {selected_position} Players")
     st.pyplot(fig)
 
-    # Optional: Additional visualizations, e.g., correlation heatmap
-    st.write("### Correlation Heatmap")
+    st.write("Heatmap")
     corr_matrix = filtered_data[['PTS', 'AST', 'REB', 'STL', 'BLK']].corr()
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", ax=ax)
